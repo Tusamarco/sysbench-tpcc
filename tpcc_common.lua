@@ -60,7 +60,9 @@ sysbench.cmdline.options = {
    mysql_storage_engine =
       {"Storage engine, if MySQL is used", "innodb"},
    mysql_table_options =
-      {"Extra table options, if MySQL is used. e.g. 'COLLATE latin1_bin'", ""}
+      {"Extra table options, if MySQL is used. e.g. 'COLLATE latin1_bin'", ""},
+   stats_format=
+   {"Specify how you want the statistics written [default=human readable; csv; json ", "human"}
 }
 
 function sleep(n)

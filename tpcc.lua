@@ -71,5 +71,9 @@ function sysbench.hooks.report_intermediate(stat)
    end
 end
 
-
+function sysbench.hooks.report_cumulative(stat)
+   if sysbench.opt.stats_format == "csv" then
+         sysbench.report_cumulative_csv(stat)
+   end
+end
 -- vim:ts=4 ss=4 sw=4 expandtab

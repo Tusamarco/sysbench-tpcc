@@ -408,6 +408,7 @@ function payment()
   con:query("COMMIT")
 
 end
+-- this Function can be set as read-only and not inside a transaction
 
 function orderstatus()
 
@@ -427,7 +428,7 @@ function orderstatus()
     local c_balance
     local c_first
     local c_middle
-    con:query("BEGIN")
+-- mm    con:query("BEGIN")
 
     if byname == 1 then
 --    /*EXEC_SQL SELECT count(c_id)
@@ -543,7 +544,7 @@ function orderstatus()
         local ol_amount = row[4]
         local ol_delivery_d = row[5]
     end
-    con:query("COMMIT")
+    -- mm con:query("COMMIT")
 
 end
 
@@ -653,13 +654,14 @@ function delivery()
 
 end
 
+-- also this function can be read-only
 function stocklevel()
     local table_num = sysbench.rand.uniform(1, sysbench.opt.tables)
     local w_id = sysbench.rand.uniform(1, sysbench.opt.scale)
     local d_id = sysbench.rand.uniform(1, DIST_PER_WARE)
     local level = sysbench.rand.uniform(10, 20)
 
-    con:query("BEGIN")
+-- mm    con:query("BEGIN")
 
 --	/*EXEC_SQL SELECT d_next_o_id
 --	                FROM district
@@ -740,7 +742,7 @@ function stocklevel()
     end
     end
 
-    con:query("COMMIT")
+   -- mm con:query("COMMIT")
 
 end
 

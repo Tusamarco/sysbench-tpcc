@@ -50,7 +50,7 @@ sysbench.cmdline.options = {
    use_fk =
       {"Use foreign keys", 1},
    force_pk =
-      {"Force using auto-inc PK on history table", 0},
+      {"Force using auto-inc PK on history table", 1},
    trx_level =
       {"Transaction isolation level (RC, RR or SER)", "RR"},
    enable_purge =

@@ -45,6 +45,8 @@ CUST_PER_DIST=3000
 sysbench.cmdline.options = {
    scale =
       {"Scale factor (warehouses)", 100},
+   load_from_scale =
+      {"load warehouse starting from this value", 0},
    tables =
       {"Number of tables", 1},
    from_table =
@@ -83,17 +85,18 @@ function cmd_prepare()
    end
 
    -- create tables in parallel table per thread
-   for i = (sysbench.tid % sysbench.opt.threads + 1) + sysbench.opt.from_table, sysbench.opt.tables,
-   sysbench.opt.threads do
-     create_tables(drv, con, i)
+   if sysbench.opt.load_from_scale == 0 then
+	   for i = sysbench.tid % sysbench.opt.threads + 1, sysbench.opt.tables,
+	   sysbench.opt.threads do
+		 create_tables(drv, con, i)
+	   end
    end
-
    -- make sure all tables are created before we load data
 
    print("Waiting on tables 30 sec\n")
    sleep(30)
 
-   for i = sysbench.tid % sysbench.opt.threads + 1, sysbench.opt.scale,
+   for i = (sysbench.tid % sysbench.opt.threads + 1) + sysbench.opt.load_from_scale, sysbench.opt.scale,
    sysbench.opt.threads do
      load_tables(drv, con, i)
    end
@@ -404,7 +407,7 @@ function load_tables(drv, con, warehouse_num)
 
    print(string.format("loading tables: %d for warehouse: %d\n", table_num, warehouse_num))
 
-    con:bulk_insert_init("INSERT INTO warehouse" .. table_num .. 
+    con:bulk_insert_init("REPLACE INTO warehouse" .. table_num .. 
 	" (w_id, w_name, w_street_1, w_street_2, w_city, w_state, w_zip, w_tax, w_ytd) values")
 
     query = string.format([[(%d, '%s','%s','%s', '%s', '%s', '%s', %f,300000)]],
@@ -415,7 +418,7 @@ function load_tables(drv, con, warehouse_num)
 		 
     con:bulk_insert_done()
 
-    con:bulk_insert_init("INSERT INTO district" .. table_num .. 
+    con:bulk_insert_init("REPLACE INTO district" .. table_num .. 
 	" (d_id, d_w_id, d_name, d_street_1, d_street_2, d_city, d_state, d_zip, d_tax, d_ytd, d_next_o_id) values")
 
    for d_id = 1 , DIST_PER_WARE do
@@ -431,7 +434,7 @@ function load_tables(drv, con, warehouse_num)
 
 -- CUSTOMER TABLE
 
-   con:bulk_insert_init("INSERT INTO customer" .. table_num .. [[
+   con:bulk_insert_init("REPLACE INTO customer" .. table_num .. [[
 	  (c_id, c_d_id, c_w_id, c_first, c_middle, c_last, c_street_1, c_street_2, c_city, c_state, c_zip, 
 	   c_phone, c_since, c_credit, c_credit_lim, c_discount, c_balance, c_ytd_payment, c_payment_cnt, c_delivery_cnt, 
            c_data) values]])
@@ -468,7 +471,7 @@ function load_tables(drv, con, warehouse_num)
 
 -- HISTORY TABLE
 
-   con:bulk_insert_init("INSERT INTO history" .. table_num .. [[
+   con:bulk_insert_init("REPLACE INTO history" .. table_num .. [[
 	  (h_c_id, h_c_d_id, h_c_w_id, h_d_id, h_w_id, h_date, h_amount, h_data) values]])
 
    for d_id = 1 , DIST_PER_WARE do
@@ -497,7 +500,7 @@ function load_tables(drv, con, warehouse_num)
         tab[i], tab[j] = tab[j], tab[i]
     end
 
-   con:bulk_insert_init("INSERT INTO orders" .. table_num .. [[
+   con:bulk_insert_init("REPLACE INTO orders" .. table_num .. [[
 	  (o_id, o_d_id, o_w_id, o_c_id, o_entry_d, o_carrier_id, o_ol_cnt, o_all_local) values]])
 
    a_counts[warehouse_num] = {}
@@ -522,7 +525,7 @@ function load_tables(drv, con, warehouse_num)
 
 -- STOCK table
 
-   con:bulk_insert_init("INSERT INTO stock" .. table_num .. 
+   con:bulk_insert_init("REPLACE INTO stock" .. table_num .. 
 	" (s_i_id, s_w_id, s_quantity, s_dist_01, s_dist_02, s_dist_03, s_dist_04, s_dist_05, s_dist_06, "..
         " s_dist_07, s_dist_08, s_dist_09, s_dist_10, s_ytd, s_order_cnt, s_remote_cnt, s_data) values")
 
@@ -546,9 +549,9 @@ function load_tables(drv, con, warehouse_num)
    end 
    con:bulk_insert_done()
 
-   con:query(string.format("INSERT INTO new_orders%d (no_o_id, no_d_id, no_w_id) SELECT o_id, o_d_id, o_w_id FROM orders%d WHERE o_id>2100 and o_w_id=%d", table_num, table_num, warehouse_num))
+   con:query(string.format("REPLACE INTO new_orders%d (no_o_id, no_d_id, no_w_id) SELECT o_id, o_d_id, o_w_id FROM orders%d WHERE o_id>2100 and o_w_id=%d", table_num, table_num, warehouse_num))
 
-   con:bulk_insert_init("INSERT INTO order_line" .. table_num .. [[
+   con:bulk_insert_init("REPLACE INTO order_line" .. table_num .. [[
 	  (ol_o_id, ol_d_id, ol_w_id, ol_number, ol_i_id, ol_supply_w_id, ol_delivery_d, 
            ol_quantity, ol_amount, ol_dist_info ) values]])
 

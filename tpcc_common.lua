@@ -47,6 +47,8 @@ sysbench.cmdline.options = {
       {"Scale factor (warehouses)", 100},
    tables =
       {"Number of tables", 1},
+   from_table =
+      {"prepare from this table number", 0},      
    use_fk =
       {"Use foreign keys", 1},
    force_pk =
@@ -81,7 +83,7 @@ function cmd_prepare()
    end
 
    -- create tables in parallel table per thread
-   for i = sysbench.tid % sysbench.opt.threads + 1, sysbench.opt.tables,
+   for i = (sysbench.tid % sysbench.opt.threads + 1) + sysbench.opt.from_table, sysbench.opt.tables,
    sysbench.opt.threads do
      create_tables(drv, con, i)
    end

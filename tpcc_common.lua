@@ -49,8 +49,6 @@ sysbench.cmdline.options = {
       {"load warehouse starting from this value", 0},
    tables =
       {"Number of tables", 1},
-   from_table =
-      {"prepare from this table number", 0},      
    use_fk =
       {"Use foreign keys", 1},
    force_pk =

@@ -428,7 +428,7 @@ function orderstatus()
     local c_balance
     local c_first
     local c_middle
--- mm    con:query("BEGIN")
+    con:query("BEGIN")
 
     if byname == 1 then
 --    /*EXEC_SQL SELECT count(c_id)
@@ -544,7 +544,7 @@ function orderstatus()
         local ol_amount = row[4]
         local ol_delivery_d = row[5]
     end
-    -- mm con:query("COMMIT")
+    con:query("COMMIT")
 
 end
 
@@ -661,7 +661,7 @@ function stocklevel()
     local d_id = sysbench.rand.uniform(1, DIST_PER_WARE)
     local level = sysbench.rand.uniform(10, 20)
 
--- mm    con:query("BEGIN")
+    con:query("BEGIN")
 
 --	/*EXEC_SQL SELECT d_next_o_id
 --	                FROM district
@@ -742,7 +742,7 @@ function stocklevel()
     end
     end
 
-   -- mm con:query("COMMIT")
+   con:query("COMMIT")
 
 end
 

@@ -56,6 +56,8 @@ function event()
 -- Execute transaction
    _G[trx]()
 
+-- check reconnect
+   check_reconnect()
 end
 
 function sysbench.hooks.before_restart_event(err)

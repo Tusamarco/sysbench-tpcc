@@ -63,6 +63,9 @@ sysbench.cmdline.options = {
       {"Storage engine, if MySQL is used", "innodb"},
    mysql_table_options =
       {"Extra table options, if MySQL is used. e.g. 'COLLATE latin1_bin'", ""},
+   reconnect =
+      {"Reconnect after every N events. The default (0) is to not reconnect",
+       0},  
    stats_format=
    {"Specify how you want the statistics written [default=human readable; csv; json ", "human"}
 }
@@ -581,6 +584,16 @@ function thread_init()
    con:query("SET AUTOCOMMIT=0")
 
 end
+
+function check_reconnect()
+   if sysbench.opt.reconnect > 0 then
+      transactions = (transactions or 0) + 1
+      if transactions % sysbench.opt.reconnect == 0 then
+         con:reconnect()
+      end
+   end
+end
+
 
 function thread_done()
    con:disconnect()

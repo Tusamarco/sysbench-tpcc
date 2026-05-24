@@ -77,8 +77,11 @@ function new_order()
 --  AND c_d_id = :d_id 
 --  AND c_id = :c_id;
 
+--  con:query("SET group_replication_consistency=AFTER;")
+--  con:query("SET wsrep_sync_wait=1;")
+--
   con:query("BEGIN")
-
+  
   local c_discount
   local c_last
   local c_credit
@@ -218,8 +221,10 @@ function new_order()
 	                  format(table_num, d_next_o_id, d_id, w_id, ol_number, ol_i_id, ol_supply_w_id, ol_quantity, ol_amount, ol_dist_info))
 
   end
-
+  
   con:query("COMMIT")
+--  con:query("SET group_replication_consistency=EVENTUAL")
+--  con:query("SET wsrep_sync_wait=0;")
 
 end
 
@@ -640,13 +645,14 @@ function delivery()
 --		                WHERE c_id = :c_id AND c_d_id = :d_id AND
 --				c_w_id = :w_id;*/
 --        print(string.format("update customer table %d, cid %d, did %d, wid %d balance %f",table_num, o_c_id, d_id, w_id, sm_ol_amount))  				
-        con:query(([[UPDATE customer%d 
+	local safe_o_c_id = o_c_id or 2
+	con:query(([[UPDATE customer%d 
                         SET c_balance = c_balance + %f,
                             c_delivery_cnt = c_delivery_cnt + 1
                       WHERE c_id = %d 
                         AND c_d_id = %d 
                         AND c_w_id = %d]])
-                      :format(table_num, sm_ol_amount, o_c_id, d_id, w_id))
+                      :format(table_num, sm_ol_amount, safe_o_c_id, d_id, w_id))
         end
         
     end
